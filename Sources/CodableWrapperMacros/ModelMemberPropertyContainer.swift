@@ -37,7 +37,7 @@ struct ModelMemberPropertyContainer {
     fileprivate let decl: DeclGroupSyntax
     fileprivate var memberProperties: [ModelMemberProperty] = []
 
-    init(decl: DeclGroupSyntax, context: some MacroExpansionContext) throws {
+    init(decl: DeclGroupSyntax, context: some MacroExpansionContext, isHandyJSON: Bool = false) throws {
         self.decl = decl
         self.context = context
         memberProperties = try fetchModelMemberProperties()
@@ -225,5 +225,15 @@ private extension ModelMemberPropertyContainer {
             }
         }
         return memberProperties
+    }
+    
+    func fetchHandyJSONMapping() throws -> [ModelMemberProperty] {
+        // find mapper(mapping:)方法
+        let mapperMethod = self.decl.firstToken(viewMode: .all)
+        guard let mapperMethod = mapperMethod, mapperMethod.text.hasPrefix("mapper") else {
+            throw ASTError("mapper(mapping:) not found.")
+            return []
+        }
+        return []
     }
 }

@@ -19,6 +19,7 @@ class StringPrefixTransform: TransformType {
         if #available(iOS 16.0, *) {
             object.replacing(prefix, with: "")
         } else {
+//             Fallback on earlier versions
             object.replacingOccurrences(of: prefix, with: "")
         }
     }
