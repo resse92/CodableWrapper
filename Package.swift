@@ -37,6 +37,8 @@ let package = Package(
         // Library that exposes a macro as part of its API, which is used in client programs.
         .target(name: "CodableWrapper",
                 dependencies: ["CodableWrapperMacros"]),
+        
+        .executableTarget(name: "Client", dependencies: ["CodableWrapperMacros", "CodableWrapper"]),
 
         // A test target used to develop the macro implementation.
         .testTarget(
