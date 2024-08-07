@@ -6,33 +6,27 @@ import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
-//open class DateTransform: TransformType {
-//    public typealias Object = Date
-//    public typealias JSON = Double
-//
-//    public init() {}
-//
-//    public func transformFromJSON(_ value: JSON?) -> Date? {
-//        if let timeInt = value as? Double {
-//            return Date(timeIntervalSince1970: TimeInterval(timeInt))
-//        }
-//
-//        if let timeStr = value as? String {
-//            return Date(timeIntervalSince1970: TimeInterval(atof(timeStr)))
-//        }
-//
-//        return nil
-//    }
-//
-//    public func transformToJSON(_ value: Date?) -> Double? {
-//        if let date = value {
-//            return Double(date.timeIntervalSince1970)
-//        }
-//        return nil
-//    }
-//}
+open class DateTransform: TransformType {
+    
+    
+    public typealias Object = Date
+    public typealias JSON = Double
 
-// 为什么这里获取不到HandyCodable
+    public init() {}
+
+    public func transformFromJSON(_ json: JSON?) -> Date {
+        if let timeInt = json {
+            return Date(timeIntervalSince1970: TimeInterval(timeInt))
+        }
+
+        return Date()
+    }
+
+    public func transformToJSON(_ object: Date) -> Double? {
+        Double(object.timeIntervalSince1970)
+    }
+}
+
 @HandyCodable
 struct HandyCodableModel {
     var s: String = ""
@@ -40,19 +34,36 @@ struct HandyCodableModel {
     
     mutating func mapping(mapper: HelpingMapper) {
         mapper <<<
-            s <-- "abcdefg"
-//        mapper <<<
-//            date <-- ("ABC", DateTransform.init())
+            s <-- "s1"
+        mapper <<<
+            date <-- ("date", DateTransform())
     }
 }
 
-extension HandyCodableModel {
-    init() {
-        let mapping = HelpingMapper()
-        mapping(mapper: mapping)
-        
+struct Test: Codable {
+    var s1: String
+    var s2: String
+    var i1: Int
+    var f1: Float
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.s1 = try container.decode(String.self, forKey: .s1)
+        self.s2 = try container.decode(String.self, forKey: .s2)
+        self.i1 = try container.decode(Int.self, forKey: .i1)
+        self.f1 = try container.decode(Float.self, forKey: .f1)
     }
 }
+
+//extension HandyCodableModel {
+//    init(from deocder: Decoder) throws {
+//        let mapping = HelpingMapper()
+//        self.mapping(mapper: mapping)
+//        self.willStartMapping()
+//        self.s = decoder.decode(type: String.self, keys: nil, nestedKeys: nil)
+//        self.didFinishMapping()
+//    }
+//}
 
 final class HandyCodableTest: XCTestCase {
     override func setUpWithError() throws {

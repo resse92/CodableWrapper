@@ -34,7 +34,7 @@ public struct HandyCodable: ExtensionMacro, MemberMacro {
                                  providingMembersOf declaration: some SwiftSyntax.DeclGroupSyntax,
                                  in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> [SwiftSyntax.DeclSyntax] {
 
-        let propertyContainer = try ModelMemberPropertyContainer(decl: declaration, context: context)
+        let propertyContainer = try ModelMemberPropertyContainer(decl: declaration, context: context, isHandyJSON: true)
         let decoder = try propertyContainer.genDecoderInitializer(config: .init(isOverride: false))
         let encoder = try propertyContainer.genEncodeFunction(config: .init(isOverride: false))
 

@@ -210,10 +210,34 @@ public func >>> <T> (mapper: HelpingMapper, property: inout T) {
     mapper._exclude(property: &property)
 }
 
-public extension KeyedDecodingContainer where K == AnyCodingKey {
+//public extension KeyedDecodingContainer where K == AnyCodingKey {
+////    func decode<Value: Decodable>(type: Value.Type,
+////                                  keys: [String],
+////                                  nestedKeys: [String]) throws -> Value {
+////        for key in nestedKeys {
+////            if let value = tryNestedKeyDecode(type: type, key: key) {
+////                return value
+////            }
+////        }
+////        for key in keys {
+////            if let value = tryNormalKeyDecode(type: type, key: key) {
+////                return value
+////            }
+////        }
+////        // if Value is Optional，return nil
+////        if let valueType = Value.self as? ExpressibleByNilLiteral.Type {
+////            return valueType.init(nilLiteral: ()) as! Value
+////        }
+////
+////        throw CodableWrapperError("decode failure: keys: \(keys), nestedKeys: \(nestedKeys)")
+////    }
+//    
 //    func decode<Value: Decodable>(type: Value.Type,
 //                                  keys: [String],
-//                                  nestedKeys: [String]) throws -> Value {
+//                                  nestedKeys: [String],
+//                                  mapper: HelpingMapper) throws -> Value {
+//        
+//        
 //        for key in nestedKeys {
 //            if let value = tryNestedKeyDecode(type: type, key: key) {
 //                return value
@@ -224,51 +248,29 @@ public extension KeyedDecodingContainer where K == AnyCodingKey {
 //                return value
 //            }
 //        }
-//        // if Value is Optional，return nil
+//        
+//        // if Value is Optional，return nil`
 //        if let valueType = Value.self as? ExpressibleByNilLiteral.Type {
 //            return valueType.init(nilLiteral: ()) as! Value
 //        }
 //
 //        throw CodableWrapperError("decode failure: keys: \(keys), nestedKeys: \(nestedKeys)")
 //    }
-    
-    func decode<Value: Decodable>(type: Value.Type,
-                                  keys: [String],
-                                  nestedKeys: [String],
-                                  mapper: HelpingMapper) throws -> Value {
-//        for key in nestedKeys {
-//            if let value = tryNestedKeyDecode(type: type, key: key) {
-//                return value
-//            }
+//}
+//
+//extension _HandyCodable {
+//    func find<T>(from mapper: HelpingMapper, property: inout T) -> MappingPropertyHandler? {
+//        let pointer = withUnsafePointer(to: &property, { return $0 })
+//        let key = Int(bitPattern: pointer)
+//        if let value = mapper.getMappingHandler(key: key) {
+//            
 //        }
-//        for key in keys {
-//            if let value = tryNormalKeyDecode(type: type, key: key) {
-//                return value
-//            }
-//        }
-        
-        // if Value is Optional，return nil
-        if let valueType = Value.self as? ExpressibleByNilLiteral.Type {
-            return valueType.init(nilLiteral: ()) as! Value
-        }
-
-        throw CodableWrapperError("decode failure: keys: \(keys), nestedKeys: \(nestedKeys)")
-    }
-}
-
-extension _HandyCodable {
-    func find<T>(from mapper: HelpingMapper, property: inout T) -> MappingPropertyHandler? {
-        let pointer = withUnsafePointer(to: &property, { return $0 })
-        let key = Int(bitPattern: pointer)
-        if let value = mapper.getMappingHandler(key: key) {
-            
-        }
-        return nil
-    }
-    
-    func isExclueded(from mapper: HelpingMapper, property: inout Int) -> Bool {
-        let pointer = withUnsafePointer(to: &property, { return $0 })
-        let key = Int(bitPattern: pointer)
-        return mapper.propertyExcluded(key: key)
-    }
-}
+//        return nil
+//    }
+//    
+//    func isExclueded(from mapper: HelpingMapper, property: inout Int) -> Bool {
+//        let pointer = withUnsafePointer(to: &property, { return $0 })
+//        let key = Int(bitPattern: pointer)
+//        return mapper.propertyExcluded(key: key)
+//    }
+//}

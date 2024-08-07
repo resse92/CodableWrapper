@@ -40,7 +40,11 @@ struct ModelMemberPropertyContainer {
     init(decl: DeclGroupSyntax, context: some MacroExpansionContext, isHandyJSON: Bool = false) throws {
         self.decl = decl
         self.context = context
-        memberProperties = try fetchModelMemberProperties()
+        if isHandyJSON {
+            memberProperties = try fetchHandyCodableProperties()
+        } else {
+            memberProperties = try fetchModelMemberProperties()
+        }
     }
 
     private func attributesPrefix(option: AttributeOption) -> String {
@@ -227,13 +231,17 @@ private extension ModelMemberPropertyContainer {
         return memberProperties
     }
     
-    func fetchHandyJSONMapping() throws -> [ModelMemberProperty] {
-        // find mapper(mapping:)方法
-        let mapperMethod = self.decl.firstToken(viewMode: .all)
-        guard let mapperMethod = mapperMethod, mapperMethod.text.hasPrefix("mapper") else {
-            throw ASTError("mapper(mapping:) not found.")
-            return []
-        }
-        return []
+    func fetchHandyCodableProperties() throws -> [ModelMemberProperty] {
+        // find mapper(mapping:)
+        let mapperMethod = self.decl.memberBlock
+        let allModelMemberProperties = try self.fetchModelMemberProperties()
+//        guard let mapperMethod = mapperMethod, mapperMethod.text.hasPrefix("mapper") else {
+//            throw ASTError("mapper(mapping:) not found.")
+//            return []
+//        }
+        
+        
+        
+        return allModelMemberProperties
     }
 }
