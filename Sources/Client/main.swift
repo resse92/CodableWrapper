@@ -40,3 +40,6 @@ struct HandyCodableModel {
         
     }
 }
+
+let model = HandyCodableModel()
+print(model)

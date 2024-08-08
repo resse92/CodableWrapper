@@ -232,16 +232,59 @@ private extension ModelMemberPropertyContainer {
     }
     
     func fetchHandyCodableProperties() throws -> [ModelMemberProperty] {
-        // find mapper(mapping:)
-        let mapperMethod = self.decl.memberBlock
-        let allModelMemberProperties = try self.fetchModelMemberProperties()
-//        guard let mapperMethod = mapperMethod, mapperMethod.text.hasPrefix("mapper") else {
-//            throw ASTError("mapper(mapping:) not found.")
-//            return []
-//        }
+        var allModelMemberProperties = try self.fetchModelMemberProperties()
+        let functions = self.decl.memberBlock.members
+            .filter({ $0.decl.is(FunctionDeclSyntax.self) })
+            .compactMap { $0.decl.as(FunctionDeclSyntax.self) }
         
+        guard let mappingFunction = functions.first(where: { $0.description.contains("mapping(mapper: HelpingMapper)") }) else {
+            throw ASTError("mapping(mapper:) not found.")
+        }
         
-        
+        for codeBlock in mappingFunction.body?.statements ?? [] where codeBlock.is(CodeBlockItemSyntax.self) {
+            if let sequence = codeBlock.item.as(SequenceExprSyntax.self) {
+                
+                var propertyName: String? = nil
+                var exprSyntax: ExprSyntax? = nil
+                for (idx, element) in sequence.elements.enumerated() {
+                    if let declReferenceExpr = element.as(DeclReferenceExprSyntax.self) {
+                        if idx == 0 {
+                            if declReferenceExpr.baseName.text != "mapper" {
+                                throw ASTError("mapper not found.")
+                            }
+                        }
+                        
+                        if idx == 2 {
+                            propertyName = declReferenceExpr.baseName.text
+                        }
+                    }
+                    if let binaryOperatorExpr = element.as(BinaryOperatorExprSyntax.self) {
+                        if (idx == 1 && binaryOperatorExpr.operator.text == "<<<")
+                            || (idx == 3 && binaryOperatorExpr.operator.text == "<--") {
+                            continue
+                        } else {
+                            throw ASTError("invalid operator used.")
+                        }
+                    }
+                    
+                    if idx == 4 {
+                        exprSyntax = element
+                    }
+                }
+                
+                if let propertyName = propertyName {
+                    if let exprSyntax = exprSyntax { // add transform and mapKey
+                        if let expr = exprSyntax.as(FunctionCallExprSyntax.self) {
+                            
+                        } else if let expr = exprSyntax.as(StringLiteralExprSyntax.self) {
+                            
+                        }
+                    } else { // exclude ignoredKey
+                        allModelMemberProperties.removeAll { $0.name == propertyName }
+                    }
+                }
+            }
+        }
         return allModelMemberProperties
     }
 }
