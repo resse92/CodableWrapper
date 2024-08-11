@@ -273,11 +273,52 @@ private extension ModelMemberPropertyContainer {
                 }
                 
                 if let propertyName = propertyName {
+                    // expr可能的形式
+                    // String
+                    // [String]
+                    // Transform()
+                    // (String?, Transform?)
+                    // ([String], Transform?)
                     if let exprSyntax = exprSyntax { // add transform and mapKey
-                        if let expr = exprSyntax.as(FunctionCallExprSyntax.self) {
+                        if let expr = exprSyntax.as(StringLiteralExprSyntax.self) { // 单个key重新map
+                            try self.update(properties: &allModelMemberProperties, propertyName: propertyName, keys: [expr.description], transform: nil)
+                        } else if let expr = exprSyntax.as(ArrayExprSyntax.self) { // 多个key
+                            let keys = expr.elements
+                                .compactMap {
+                                    $0.as(ArrayElementSyntax.self)?
+                                        .as(StringLiteralExprSyntax.self)?
+                                        .description
+                                }
+                                        
+                            try self.update(properties: &allModelMemberProperties, propertyName: propertyName, keys: keys, transform: nil)
+                        } else if let expr = exprSyntax.as(TupleExprSyntax.self) { // 元祖 (key, transform)
+                            let elements = expr.elements
+                            if elements.count != 2 {
+                                throw ASTError("tuple element count should be 2")
+                            }
+                            let left = elements.first
+                            var keys: [String] = []
+                            if let left = left?.expression
+                                .as(StringLiteralExprSyntax.self) {
+                                keys = left.segments.map { $0.description }
+                            } else if let left = left?
+                                .expression.as(ArrayExprSyntax.self) {
+                                keys = left
+                                    .elements.compactMap { $0.as(ArrayElementSyntax.self)?
+                                            .expression
+                                            .as(StringLiteralExprSyntax.self)?
+                                            .description
+                                    }
+                            } else {
+                                throw ASTError("unknow first element type of tuple")
+                            }
                             
-                        } else if let expr = exprSyntax.as(StringLiteralExprSyntax.self) {
+                            let transform = elements.last?.description
+                            try self.update(properties: &allModelMemberProperties, propertyName: propertyName, keys: keys, transform: transform)
                             
+                        } else if let expr = exprSyntax.as(FunctionCallExprSyntax.self) { // 单个transform
+                            let transform = expr.description
+                            try self.update(properties: &allModelMemberProperties, propertyName: propertyName, keys: [], transform: transform)
                         }
                     } else { // exclude ignoredKey
                         allModelMemberProperties.removeAll { $0.name == propertyName }
@@ -287,4 +328,22 @@ private extension ModelMemberPropertyContainer {
         }
         return allModelMemberProperties
     }
+    
+    func update(properties: inout [ModelMemberProperty], propertyName: String, keys: [String], transform: String?) throws {
+        guard let idx = properties.firstIndex(where: { $0.name == propertyName }) else {
+            throw ASTError("unable to find handycodable property from struct/class")
+        }
+        var property = properties[idx]
+        for key in keys {
+            if key.contains(".") {
+                property.nestedKeys.append(key)
+            } else {
+                property.normalKeys.append(key)
+            }
+        }
+        
+        property.transformerExpr = transform
+        properties[idx] = property
+    }
 }
+
