@@ -300,7 +300,7 @@ private extension ModelMemberPropertyContainer {
                             var keys: [String] = []
                             if let left = left?.expression
                                 .as(StringLiteralExprSyntax.self) {
-                                keys = left.segments.map { $0.description }
+                                keys = [left.description]
                             } else if let left = left?
                                 .expression.as(ArrayExprSyntax.self) {
                                 keys = left
@@ -334,6 +334,8 @@ private extension ModelMemberPropertyContainer {
             throw ASTError("unable to find handycodable property from struct/class")
         }
         var property = properties[idx]
+        property.nestedKeys = []
+        property.normalKeys = []
         for key in keys {
             if key.contains(".") {
                 property.nestedKeys.append(key)
