@@ -258,6 +258,9 @@ private extension ModelMemberPropertyContainer {
                             propertyName = declReferenceExpr.baseName.text
                         }
                     }
+                    if let memberAccessExpr = element.as(MemberAccessExprSyntax.self), idx == 2 {
+                        propertyName = memberAccessExpr.declName.trimmedDescription
+                    }
                     if let binaryOperatorExpr = element.as(BinaryOperatorExprSyntax.self) {
                         if (idx == 1 && binaryOperatorExpr.operator.text == "<<<")
                             || (idx == 3 && binaryOperatorExpr.operator.text == "<--") {

@@ -20,24 +20,35 @@ struct HandyNormalModel {
     var url: URL? = nil
     var decimal: NSDecimalNumber?
     var date: Date?
+    var customTransformFunc: String?
     
     init() { }
     
     mutating func mapping(mapper: HelpingMapper) {
         mapper <<<
-            show <-- "title"
+            self.show   <-- "title"
         mapper <<<
-            actorName1 <-- "actor.actorName"
+            actorName1     <-- "actor.actorName"
         mapper <<<
-            actorName2 <-- "actor.actor_name"
+            actorName2          <-- "actor.actor_name"
         mapper <<<
-            iq <-- "actor.iq"
+            iq <--       "actor.iq"
         mapper <<<
-            url <-- (["_url", "url"], URLTransform())
+            url <-- (["_url",        "url"], URLTransform())
         mapper <<<
             decimal <-- ("d", NSDecimalNumberTransform())
         mapper <<<
             date <-- CustomDateFormatTransform(formatString: "yyyy-MM-dd HH:mm:ss")
+        
+        mapper <<<
+            customTransformFunc <-- TransformOf<String?, String>(fromJSON: { (rawValue) -> String? in
+                if let str = rawValue {
+                    return "json_" + str
+                }
+                return nil
+            }, toJSON: { (id) -> String? in
+                return id
+            })
     }
 }
 
@@ -52,7 +63,8 @@ class HandyNormalTest: XCTestCase {
         },
         "url": "https://www.baidu.com/",
         "d": 0.9819211,
-        "date": "2024-08-01 14:00:00"
+        "date": "2024-08-01 14:00:00",
+        "customTransformFunc": "json_aabbcc"
     }
     """
 
