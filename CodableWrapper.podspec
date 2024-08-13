@@ -20,6 +20,9 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'git@github.com:winddpan/CodableWrapper.git', :tag => s.version.to_s }
 
   s.ios.deployment_target = '12.0'
+  s.swift_version = "5.9"
+  
+
 
   s.source_files = 'Sources/CodableWrapper/*{.swift}'
   # s.preserve_paths = ["Package.swift", "Sources/CodableWrapperMacros", "Tests", "Bin"]
