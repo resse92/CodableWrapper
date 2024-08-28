@@ -239,7 +239,7 @@ private extension ModelMemberPropertyContainer {
             .compactMap { $0.decl.as(FunctionDeclSyntax.self) }
         
         guard let mappingFunction = functions.first(where: { $0.description.contains("mapping(mapper: HelpingMapper)") }) else {
-            throw ASTError("mapping(mapper:) not found.")
+            return allModelMemberProperties
         }
         
         for codeBlock in mappingFunction.body?.statements ?? [] where codeBlock.is(CodeBlockItemSyntax.self) {
@@ -321,7 +321,11 @@ private extension ModelMemberPropertyContainer {
                             try self.update(properties: &allModelMemberProperties, propertyName: propertyName, keys: keys, transform: transform)
                             
                         } else if let expr = exprSyntax.as(FunctionCallExprSyntax.self) { // 单个transform
-                            let transform = expr.description
+                            var transform = expr.description
+                            if transform.hasPrefix("NSDecimalNumberTransform")
+                                || transform.hasPrefix("CustomDateFormatTransform"){
+                                transform = "CodableWrapper." + transform
+                            }
                             try self.update(properties: &allModelMemberProperties, propertyName: propertyName, keys: [], transform: transform)
                         }
                     } else { // exclude ignoredKey

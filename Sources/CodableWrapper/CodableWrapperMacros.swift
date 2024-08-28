@@ -16,4 +16,4 @@ public macro CodingTransformer(_ transformer: any TransformType) = #externalMacr
 
 @attached(member, names: named(init(from:)), named(encode(to:)), arbitrary)
 @attached(extension, conformances: _HandyCodable)
-public macro HandyCodable(wiseInit: Bool = true) = #externalMacro(module: "CodableWrapperMacros", type: "HandyCodable")
+public macro HandyCodable() = #externalMacro(module: "CodableWrapperMacros", type: "HandyCodable")

@@ -3,7 +3,11 @@
 
 import Foundation
 
+#if canImport(HandyJSON)
+import HandyJSON
+public protocol _HandyCodable: HandyJSON, Codable { }
 
+#else
 public protocol _HandyCodable: Codable {
     init()
     mutating func willStartMapping()
@@ -13,6 +17,7 @@ public protocol _HandyCodable: Codable {
 
 extension _HandyCodable {
     public func willStartMapping() { }
+    func mapping(mapper: HelpingMapper) { }
     public func didFinishMapping() { }
 }
 
@@ -76,6 +81,8 @@ public class MappingPropertyHandler {
     }
 }
 
+/// all blow code for type check, and never be called in runtime
+
 public class HelpingMapper {
     
     private var mappingHandlers = [Int: MappingPropertyHandler]()
@@ -89,28 +96,7 @@ public class HelpingMapper {
         return self.excludeProperties.contains(key)
     }
     
-    public func specify<T>(property: inout T, name: String? = nil, converter: ((String) -> T)? = nil) {
-        let pointer = withUnsafePointer(to: &property, { return $0 })
-        let key = Int(bitPattern: pointer)
-        let names = (name == nil ? nil : [name!])
-        
-        if let _converter = converter {
-            let assignmentClosure = { (jsonValue: Any?) -> Any? in
-                if let _value = jsonValue {
-                    if let object = _value as? NSObject {
-                        // TODO: 这里是否需要mapping
-//                        if let str = String.transform(from: object){
-//                            return _converter(str)
-//                        }
-                    }
-                }
-                return nil
-            }
-            self.mappingHandlers[key] = MappingPropertyHandler(rawPaths: names, assignmentClosure: assignmentClosure, takeValueClosure: nil)
-        } else {
-            self.mappingHandlers[key] = MappingPropertyHandler(rawPaths: names, assignmentClosure: nil, takeValueClosure: nil)
-        }
-    }
+    public func specify<T>(property: inout T, name: String? = nil, converter: ((String) -> T)? = nil) { }
     
     public func exclude<T>(property: inout T) {
         self._exclude(property: &property)
@@ -133,9 +119,7 @@ public func <-- <T>(property: inout T, name: String) -> CustomMappingKeyValueTup
 }
 
 public func <-- <T>(property: inout T, names: [String]) -> CustomMappingKeyValueTuple {
-    let pointer = withUnsafePointer(to: &property, { return $0 })
-    let key = Int(bitPattern: pointer)
-    return (key, MappingPropertyHandler(rawPaths: names, assignmentClosure: nil, takeValueClosure: nil))
+    return (0, MappingPropertyHandler(rawPaths: [], assignmentClosure: nil, takeValueClosure: nil))
 }
 
 // MARK: non-optional properties
@@ -149,20 +133,7 @@ public func <-- <Transform: TransformType>(property: inout Transform.Object, tra
 }
 
 public func <-- <Transform: TransformType>(property: inout Transform.Object, transformer: ([String], Transform?)) -> CustomMappingKeyValueTuple {
-    let pointer = withUnsafePointer(to: &property, { return $0 })
-    let key = Int(bitPattern: pointer)
-    let assignmentClosure = { (jsonValue: Any?) -> Transform.Object? in
-        // TODO: check this
-        return nil
-//        return transformer.1?.transformFromJSON(jsonValue)
-    }
-    let takeValueClosure = { (objectValue: Any?) -> Any? in
-        if let _value = objectValue as? Transform.Object {
-            return transformer.1?.transformToJSON(_value) as Any
-        }
-        return nil
-    }
-    return (key, MappingPropertyHandler(rawPaths: transformer.0, assignmentClosure: assignmentClosure, takeValueClosure: takeValueClosure))
+    (0, MappingPropertyHandler(rawPaths: [], assignmentClosure: nil, takeValueClosure: nil))
 }
 
 // MARK: optional properties
@@ -176,20 +147,7 @@ public func <-- <Transform: TransformType>(property: inout Transform.Object?, tr
 }
 
 public func <-- <Transform: TransformType>(property: inout Transform.Object?, transformer: ([String], Transform?)) -> CustomMappingKeyValueTuple {
-    let pointer = withUnsafePointer(to: &property, { return $0 })
-    let key = Int(bitPattern: pointer)
-    let assignmentClosure = { (jsonValue: Any?) -> Any? in
-        // TODO: check this
-        return nil
-//        return transformer.1?.transformFromJSON(jsonValue)
-    }
-    let takeValueClosure = { (objectValue: Any?) -> Any? in
-        if let _value = objectValue as? Transform.Object {
-            return transformer.1?.transformToJSON(_value) as Any
-        }
-        return nil
-    }
-    return (key, MappingPropertyHandler(rawPaths: transformer.0, assignmentClosure: assignmentClosure, takeValueClosure: takeValueClosure))
+    (0, MappingPropertyHandler(rawPaths: [], assignmentClosure: nil, takeValueClosure: nil))
 }
 
 infix operator <<< : AssignmentPrecedence
@@ -210,67 +168,5 @@ public func >>> <T> (mapper: HelpingMapper, property: inout T) {
     mapper._exclude(property: &property)
 }
 
-//public extension KeyedDecodingContainer where K == AnyCodingKey {
-////    func decode<Value: Decodable>(type: Value.Type,
-////                                  keys: [String],
-////                                  nestedKeys: [String]) throws -> Value {
-////        for key in nestedKeys {
-////            if let value = tryNestedKeyDecode(type: type, key: key) {
-////                return value
-////            }
-////        }
-////        for key in keys {
-////            if let value = tryNormalKeyDecode(type: type, key: key) {
-////                return value
-////            }
-////        }
-////        // if Value is Optional，return nil
-////        if let valueType = Value.self as? ExpressibleByNilLiteral.Type {
-////            return valueType.init(nilLiteral: ()) as! Value
-////        }
-////
-////        throw CodableWrapperError("decode failure: keys: \(keys), nestedKeys: \(nestedKeys)")
-////    }
-//    
-//    func decode<Value: Decodable>(type: Value.Type,
-//                                  keys: [String],
-//                                  nestedKeys: [String],
-//                                  mapper: HelpingMapper) throws -> Value {
-//        
-//        
-//        for key in nestedKeys {
-//            if let value = tryNestedKeyDecode(type: type, key: key) {
-//                return value
-//            }
-//        }
-//        for key in keys {
-//            if let value = tryNormalKeyDecode(type: type, key: key) {
-//                return value
-//            }
-//        }
-//        
-//        // if Value is Optional，return nil`
-//        if let valueType = Value.self as? ExpressibleByNilLiteral.Type {
-//            return valueType.init(nilLiteral: ()) as! Value
-//        }
-//
-//        throw CodableWrapperError("decode failure: keys: \(keys), nestedKeys: \(nestedKeys)")
-//    }
-//}
-//
-//extension _HandyCodable {
-//    func find<T>(from mapper: HelpingMapper, property: inout T) -> MappingPropertyHandler? {
-//        let pointer = withUnsafePointer(to: &property, { return $0 })
-//        let key = Int(bitPattern: pointer)
-//        if let value = mapper.getMappingHandler(key: key) {
-//            
-//        }
-//        return nil
-//    }
-//    
-//    func isExclueded(from mapper: HelpingMapper, property: inout Int) -> Bool {
-//        let pointer = withUnsafePointer(to: &property, { return $0 })
-//        let key = Int(bitPattern: pointer)
-//        return mapper.propertyExcluded(key: key)
-//    }
-//}
+#endif
+
