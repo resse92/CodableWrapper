@@ -38,16 +38,6 @@ public struct HandyCodable: ExtensionMacro, MemberMacro {
         let decoder = try propertyContainer.genDecoderInitializer(config: .init(isOverride: false))
         let encoder = try propertyContainer.genEncodeFunction(config: .init(isOverride: false))
 
-        var hasWiseInit = true
-        if case let .argumentList(list) = node.arguments, list.first?.expression.description == "false" {
-            hasWiseInit = false
-        }
-
-        if !hasWiseInit {
-            return [decoder, encoder]
-        } else {
-            let memberwiseInit = try propertyContainer.genMemberwiseInit(config: .init(isOverride: false))
-            return [decoder, encoder, memberwiseInit]
-        }
+        return [decoder, encoder]
     }
 }
