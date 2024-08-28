@@ -31,7 +31,7 @@ final class HandyCodableTest: XCTestCase {
 #"""
 @HandyCodable
 struct HandyCodableModel {
-    var s: String = ""
+    var s: String = ""//abcd
     var date: Date = Date()
     var s2: String = ""
     var s3: String = ""
