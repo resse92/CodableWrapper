@@ -182,6 +182,7 @@ private extension ModelMemberPropertyContainer {
             guard let variable = member.decl.as(VariableDeclSyntax.self), variable.isStoredProperty else {
                 return []
             }
+            
             let patterns = variable.bindings.map(\.pattern)
             let names = patterns.compactMap { $0.as(IdentifierPatternSyntax.self)?.identifier.text }
 
@@ -223,7 +224,7 @@ private extension ModelMemberPropertyContainer {
 
                 // initializerExpr
                 if let initializer = variable.bindings.compactMap(\.initializer).first {
-                    mp.initializerExpr = initializer.value.description
+                    mp.initializerExpr = initializer.value.trimmed.description
                 }
                 return mp
             }
