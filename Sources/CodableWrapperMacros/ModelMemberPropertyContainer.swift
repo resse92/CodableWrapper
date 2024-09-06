@@ -321,11 +321,7 @@ private extension ModelMemberPropertyContainer {
                             try self.update(properties: &allModelMemberProperties, propertyName: propertyName, keys: keys, transform: transform)
                             
                         } else if let expr = exprSyntax.as(FunctionCallExprSyntax.self) { // 单个transform
-                            var transform = expr.description
-                            if transform.hasPrefix("NSDecimalNumberTransform")
-                                || transform.hasPrefix("CustomDateFormatTransform"){
-                                transform = "CodableWrapper." + transform
-                            }
+                            let transform = expr.description
                             try self.update(properties: &allModelMemberProperties, propertyName: propertyName, keys: [], transform: transform)
                         }
                     } else { // exclude ignoredKey
@@ -352,7 +348,12 @@ private extension ModelMemberPropertyContainer {
             }
         }
         
-        property.transformerExpr = transform
+        if let transform = transform {
+            property.transformerExpr = "HandyJSONTransform(transform: \(transform))"
+        } else {
+            property.transformerExpr = nil
+        }
+        
         properties[idx] = property
     }
 }

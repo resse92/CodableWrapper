@@ -23,9 +23,13 @@ Pod::Spec.new do |s|
   s.swift_version = "5.9"
   
 
-
   s.source_files = 'Sources/CodableWrapper/*{.swift}'
   s.preserve_paths = ["Package.swift", "Sources/CodableWrapperMacros", "Tests", "Bin"]
+  
+  s.subspec 'HandyCodable' do |ss|
+    ss.source_files = 'Sources/CodableWrapper/HandyCodable/**/*{.swift}'
+    ss.dependency 'HandyJSON'
+  end
   
   s.pod_target_xcconfig = {
     "OTHER_SWIFT_FLAGS" => "-load-plugin-executable $(PODS_BUILD_DIR)/CodableWrapper/release/CodableWrapperMacros#CodableWrapperMacros"

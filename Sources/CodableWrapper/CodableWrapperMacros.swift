@@ -13,7 +13,3 @@ public macro CodingNestedKey(_ key: String ...) = #externalMacro(module: "Codabl
 
 @attached(peer)
 public macro CodingTransformer(_ transformer: any TransformType) = #externalMacro(module: "CodableWrapperMacros", type: "CodingTransformer")
-
-@attached(member, names: named(init(from:)), named(encode(to:)), arbitrary)
-@attached(extension, conformances: _HandyCodable)
-public macro HandyCodable() = #externalMacro(module: "CodableWrapperMacros", type: "HandyCodable")
