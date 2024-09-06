@@ -18,7 +18,7 @@ public struct HandyCodable: ExtensionMacro, MemberMacro {
             throw ASTError("use @HandyCodable in `struct` or `class`")
         }
         if let inheritedTypes = inheritedTypes,
-           inheritedTypes.contains(where: { inherited in ["Codable", "_HandyCodable"].contains(inherited.type.trimmedDescription) }) {
+           inheritedTypes.contains(where: { inherited in ["_HandyCodable"].contains(inherited.type.trimmedDescription) }) {
             return []
         }
 

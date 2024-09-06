@@ -23,7 +23,6 @@ Pod::Spec.new do |s|
   s.swift_version = "5.9"
   
 
-
   s.source_files = 'Sources/CodableWrapper/*{.swift}'
   # s.preserve_paths = ["Package.swift", "Sources/CodableWrapperMacros", "Tests", "Bin"]
 
@@ -38,6 +37,12 @@ Pod::Spec.new do |s|
   build_path = "${PODS_BUILD_DIR}/Macros/#{plugin_module}"
   plugin_path = "#{build_path}/${CONFIGURATION}/#{plugin_module}"
   plugin_output = "$(PODS_BUILD_DIR)/Macros/#{plugin_module}/$(CONFIGURATION)/#{plugin_module}"
+  s.preserve_paths = ["Package.swift", "Sources/CodableWrapperMacros", "Tests", "Bin"]
+  
+  s.subspec 'HandyCodable' do |ss|
+    ss.source_files = 'Sources/CodableWrapper/HandyCodable/**/*{.swift}'
+    ss.dependency 'HandyJSON'
+  end
 
   script = <<-SCRIPT
   echo "env -i PATH=\\"$PATH\\" SRCROOT=\\"$PODS_TARGET_SRCROOT\\" BUILD_DIR=\\"$PODS_BUILD_DIR\\" TOOLCHAIN=\\"$DT_TOOLCHAIN_DIR\\" CONFIGURATION=\\"$CONFIGURATION\\" \\"${PODS_TARGET_SRCROOT}/#{script_path}\\""
