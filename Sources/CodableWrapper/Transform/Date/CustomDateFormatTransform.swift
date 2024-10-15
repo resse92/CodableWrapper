@@ -3,7 +3,7 @@
 
 import Foundation
 
-open class CustomDateFormatTransform: DateFormatterTransform {
+open class _CustomDateFormatTransform: _DateFormatterTransform {
 
     public init(formatString: String) {
         let formatter = DateFormatter()
@@ -14,7 +14,7 @@ open class CustomDateFormatTransform: DateFormatterTransform {
     }
 }
 
-open class ISO8601DateTransform: DateFormatterTransform {
+open class ISO8601DateTransform: _DateFormatterTransform {
 
     public init() {
         let formatter = DateFormatter()

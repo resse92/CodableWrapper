@@ -3,7 +3,7 @@
 
 import Foundation
 
-open class DateTransform: TransformType {
+open class _DateTransform: _TransformType {
     public typealias Object = Date?
     public typealias JSON = Double
 

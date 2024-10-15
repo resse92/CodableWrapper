@@ -12,4 +12,5 @@ public macro CodingKey(_ key: String ...) = #externalMacro(module: "CodableWrapp
 public macro CodingNestedKey(_ key: String ...) = #externalMacro(module: "CodableWrapperMacros", type: "CodingNestedKey")
 
 @attached(peer)
-public macro CodingTransformer(_ transformer: any TransformType) = #externalMacro(module: "CodableWrapperMacros", type: "CodingTransformer")
+public macro CodingTransformer(_ transformer: any _TransformType) = #externalMacro(module: "CodableWrapperMacros", type: "CodingTransformer")
+

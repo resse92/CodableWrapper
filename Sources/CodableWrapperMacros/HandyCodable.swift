@@ -35,9 +35,22 @@ public struct HandyCodable: ExtensionMacro, MemberMacro {
                                  in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> [SwiftSyntax.DeclSyntax] {
 
         let propertyContainer = try ModelMemberPropertyContainer(decl: declaration, context: context, isHandyJSON: true)
-        let decoder = try propertyContainer.genDecoderInitializer(config: .init(isOverride: false))
-        let encoder = try propertyContainer.genEncodeFunction(config: .init(isOverride: false))
+        let decoder = try propertyContainer.genDecoderInitializer(config: .init(isOverride: false, isHandyCodable: true))
+        let encoder = try propertyContainer.genEncodeFunction(config: .init(isOverride: false, isHandyCodable: true))
 
+        return [decoder, encoder]
+    }
+}
+
+public struct HandyCodableSubclass: MemberMacro {
+    public static func expansion(of node: AttributeSyntax, providingMembersOf declaration: some DeclGroupSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
+        guard declaration.is(ClassDeclSyntax.self) else {
+            throw ASTError("not a `subclass`")
+        }
+
+        let propertyContainer = try ModelMemberPropertyContainer(decl: declaration, context: context)
+        let decoder = try propertyContainer.genDecoderInitializer(config: .init(isOverride: true, isHandyCodable: true))
+        let encoder = try propertyContainer.genEncodeFunction(config: .init(isOverride: true, isHandyCodable: true))
         return [decoder, encoder]
     }
 }

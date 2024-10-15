@@ -3,10 +3,17 @@
 
 import Foundation
 
+public var isInExp: Bool = true
+
 // MARK: - HandyCodable Macro
 @attached(member, names: named(init(from:)), named(encode(to:)), arbitrary)
 @attached(extension, conformances: _HandyCodable)
 public macro HandyCodable() = #externalMacro(module: "CodableWrapperMacros", type: "HandyCodable")
+
+@attached(member, names: named(init(from:)), named(encode(to:)), arbitrary)
+@attached(extension, conformances: _HandyCodable)
+public macro HandyCodableSubclass() = #externalMacro(module: "CodableWrapperMacros", type: "HandyCodableSubclass")
+
 
 #if canImport(HandyJSON)
 import HandyJSON
@@ -14,30 +21,8 @@ import HandyJSON
 // MARK: - HandyCodable
 public protocol _HandyCodable: HandyJSON, Codable { }
 
-// MARK: - HandyJSONTransform
-// HandyJSON 的transform转成 CodableWrapper.Transform
-public class HandyJSONTransform<T: __HandyJSONTransform> {
-    
-    let handyTransform: T
-    public init(transform: T) {
-        self.handyTransform = transform
-    }
-}
-
-extension HandyJSONTransform: CodableWrapper.TransformType where T.JSON: Codable {
-    
-    public typealias Object = Optional<T.Object>
-    public typealias JSON = T.JSON
-    
-    public func transformFromJSON(_ json: JSON?) -> Object {
-        self.handyTransform.transformFromJSON(json)
-    }
-    
-    public func transformToJSON(_ object: Object) -> JSON? {
-        self.handyTransform.transformToJSON(object)
-    }
-}
 #else
+public typealias TransformType = _TransformType
 
 public protocol _HandyCodable: Codable {
     init()
