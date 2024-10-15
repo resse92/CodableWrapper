@@ -3,7 +3,7 @@
 
 import Foundation
 
-open class NSDecimalNumberTransform: TransformType {
+open class _NSDecimalNumberTransform: _TransformType {
     
     public typealias Object = NSDecimalNumber
     public typealias JSON = Double

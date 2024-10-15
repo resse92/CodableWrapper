@@ -3,7 +3,7 @@
 
 import Foundation
 
-open class DateFormatterTransform: TransformType {
+open class _DateFormatterTransform: _TransformType {
     public typealias Object = Date?
     public typealias JSON = String
 

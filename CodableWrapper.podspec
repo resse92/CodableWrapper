@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.swift_version = "5.9"
   
 
-  s.source_files = 'Sources/CodableWrapper/*{.swift}'
+  s.source_files = ['Sources/CodableWrapper/*{.swift}', 'Sources/CodableWrapper/Transform/**/*{.swift}']
   s.preserve_paths = ["Package.swift", "Sources/CodableWrapperMacros", "Tests", "Bin"]
   
   s.subspec 'HandyCodable' do |ss|

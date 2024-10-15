@@ -8,7 +8,7 @@
 
 import Foundation
 
-open class TransformOf<Object, JSON: Codable>: TransformType {
+open class TransformOf<Object, JSON: Codable>: _TransformType {
     open var fromJSON: (JSON?) -> Object
     open var toJSON: (Object) -> JSON?
 

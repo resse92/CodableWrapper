@@ -7,9 +7,7 @@ import UIKit
 import Cocoa
 #endif
 
-open class HexColorTransform: TransformType {
-
-    
+open class _HexColorTransform: _TransformType {
 
     #if os(iOS) || os(tvOS) || os(watchOS)
     public typealias Object = UIColor

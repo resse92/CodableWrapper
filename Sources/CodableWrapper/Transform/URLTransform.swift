@@ -3,7 +3,7 @@
 
 import Foundation
 
-open class URLTransform: TransformType {
+open class _URLTransform: _TransformType {
     public typealias Object = URL?
     public typealias JSON = String
     private let shouldEncodeURLString: Bool

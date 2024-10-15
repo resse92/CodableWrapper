@@ -31,6 +31,12 @@ struct ModelMemberPropertyContainer {
 
     struct GenConfig {
         let isOverride: Bool
+        let isHandyCodable: Bool
+        
+        init(isOverride: Bool, isHandyCodable: Bool = false) {
+            self.isOverride = isOverride
+            self.isHandyCodable = isHandyCodable
+        }
     }
 
     let context: MacroExpansionContext
@@ -108,7 +114,9 @@ struct ModelMemberPropertyContainer {
         let decoder: DeclSyntax = """
         \(raw: attributesPrefix(option: [.public, .required]))init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: AnyCodingKey.self)
+        \(raw: config.isHandyCodable ? "self.willStartMapping()" : "")
             \(raw: body)\(raw: config.isOverride ? "\ntry super.init(from: decoder)" : "")
+        \(raw: config.isHandyCodable ? "self.didFinishMapping()" : "")
         }
         """
 
@@ -349,7 +357,7 @@ private extension ModelMemberPropertyContainer {
         }
         
         if let transform = transform {
-            property.transformerExpr = "HandyJSONTransform(transform: \(transform))"
+            property.transformerExpr = "_\(transform)" // tranform to CodableWrapper transforms
         } else {
             property.transformerExpr = nil
         }

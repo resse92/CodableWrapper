@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol TransformType {
+public protocol _TransformType {
     associatedtype Object
     associatedtype JSON: Codable
 
@@ -16,7 +16,7 @@ public protocol TransformType {
     func transformToJSON(_ object: Object) -> JSON?
 }
 
-public extension TransformType {
+public extension _TransformType {
     func transformFromJSON(_ json: JSON?,
                            fallback _: @autoclosure () -> Object) -> Object {
         return transformFromJSON(json)
