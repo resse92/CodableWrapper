@@ -17,7 +17,7 @@ open class _NSDecimalNumberTransform: _TransformType {
         return 0
     }
 
-    open func transformToJSON(_ value: Object) -> Double? {
+    open func transformToJSON(_ value: Object) -> JSON? {
         value.doubleValue
     }
 }
