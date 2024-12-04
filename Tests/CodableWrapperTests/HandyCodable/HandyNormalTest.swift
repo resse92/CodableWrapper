@@ -5,6 +5,7 @@ import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 import CodableWrapper
+import HandyJSON
 
 @HandyCodable
 struct HandyNormalModel {
@@ -34,14 +35,14 @@ struct HandyNormalModel {
         mapper <<<
             iq <--       "actor.iq"
         mapper <<<
-            url <-- (["_url",        "url"], URLTransform())
+            url <-- (["_url", "url"], URLTransform())
         mapper <<<
             decimal <-- ("d", NSDecimalNumberTransform())
         mapper <<<
             date <-- CustomDateFormatTransform(formatString: "yyyy-MM-dd HH:mm:ss")
         
         mapper <<<
-            customTransformFunc <-- TransformOf<String?, String>(fromJSON: { (rawValue) -> String? in
+            customTransformFunc <-- TransformOf<String, String>(fromJSON: { (rawValue) -> String? in
                 if let str = rawValue {
                     return "json_" + str
                 }

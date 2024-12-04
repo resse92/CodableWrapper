@@ -39,13 +39,14 @@ let package = Package(
         .target(name: "CodableWrapper",
                 dependencies: ["CodableWrapperMacros"]),
         
-        .executableTarget(name: "Client", dependencies: ["CodableWrapperMacros", "CodableWrapper"]),
+        .executableTarget(name: "Client", dependencies: ["CodableWrapperMacros", "CodableWrapper", "HandyJSON"]),
 
         // A test target used to develop the macro implementation.
         .testTarget(
             name: "CodableWrapperTests",
             dependencies: [
                 "CodableWrapper",
+                "HandyJSON",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ]
         ),

@@ -1,7 +1,7 @@
 import CodableWrapper
 import Foundation
 
-class StringPrefixTransform: TransformType {
+class StringPrefixTransform: _TransformType {
     typealias Object = String
     typealias JSON = String
 
@@ -25,7 +25,7 @@ class StringPrefixTransform: TransformType {
     }
 }
 
-class TimestampTransform: TransformType {
+class TimestampTransform: _TransformType {
     typealias Object = Date
     typealias JSON = TimeInterval
 
@@ -38,7 +38,7 @@ class TimestampTransform: TransformType {
     }
 }
 
-let tupleTransform = TransformOf<(String, String)?, String>(fromJSON: { json in
+let tupleTransform = _TransformOf<(String, String)?, String>(fromJSON: { json in
     if let json = json {
         let comps = json.components(separatedBy: "|")
         return (comps.first ?? "", comps.last ?? "")
