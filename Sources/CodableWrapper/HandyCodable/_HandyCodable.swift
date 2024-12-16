@@ -2,6 +2,7 @@
 // Created by: resse
 
 import Foundation
+#if canImport(HandyJSON)
 
 public var isInExp: Bool = true
 
@@ -19,4 +20,5 @@ import HandyJSON
 
 // MARK: - HandyCodable
 public protocol _HandyCodable: HandyJSON, Codable { }
+#endif
 

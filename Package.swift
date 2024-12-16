@@ -39,7 +39,7 @@ let package = Package(
         .target(name: "CodableWrapper",
                 dependencies: ["CodableWrapperMacros"]),
         
-        .executableTarget(name: "Client", dependencies: ["CodableWrapperMacros", "CodableWrapper", "HandyJSON"]),
+//        .executableTarget(name: "Client", dependencies: ["CodableWrapperMacros", "CodableWrapper", "HandyJSON"]),
 
         // A test target used to develop the macro implementation.
         .testTarget(
