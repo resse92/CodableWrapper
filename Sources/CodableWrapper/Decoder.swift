@@ -64,7 +64,11 @@ private extension KeyedDecodingContainer where K == AnyCodingKey {
         container = try? nestedContainer(keyedBy: AnyCodingKey.self, forKey: rootKey)
         let lastKey = keyComps.removeLast()
         for keyComp in keyComps {
-            container = try? container?.nestedContainer(keyedBy: AnyCodingKey.self, forKey: .init(stringValue: keyComp)!)
+            if let temp = try? container?.nestedContainer(keyedBy: AnyCodingKey.self, forKey: .init(stringValue: keyComp)!) {
+                container = temp
+            } else {
+                container = nil
+            }
         }
         if let container = container {
             if let value = container.tryNormalKeyDecode(type: type, key: lastKey) {

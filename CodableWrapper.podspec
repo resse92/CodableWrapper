@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.summary          = 'A short description of CodableWrapper.'
 
   s.description      = <<-DESC
-    CodableWrapper Pod 
+    CodableWrapper Pod
                        DESC
 
   s.homepage         = 'https://github.com/winddpan/CodableWrapper'
@@ -22,23 +22,37 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '12.0'
 
   s.source_files = 'Sources/CodableWrapper/*{.swift}'
-  s.preserve_paths = ["Package.swift", "Sources/CodableWrapperMacros", "Tests", "Bin"]
-  
-  s.pod_target_xcconfig = {
-    "OTHER_SWIFT_FLAGS" => "-Xfrontend -load-plugin-executable -Xfrontend $(PODS_BUILD_DIR)/CodableWrapper/release/CodableWrapperMacros#CodableWrapperMacros"
-  }
-  
-  s.user_target_xcconfig = {
-    "OTHER_SWIFT_FLAGS" => "-Xfrontend -load-plugin-executable -Xfrontend $(PODS_BUILD_DIR)/CodableWrapper/release/CodableWrapperMacros#CodableWrapperMacros"
-  }
+  # s.preserve_paths = ["Package.swift", "Sources/CodableWrapperMacros", "Tests", "Bin"]
+
+
+  sources_dir = 'Sources'
+  plugin_module = 'CodableWrapperMacros'
+  manifest_file = 'Package*.swift'
+
+  script_path = 'Utils/macro_plugin_build.rb'
+  preserved_sources = "{#{manifest_file},#{sources_dir}/{#{plugin_module}}/**/*.swift,#{script_path}}"
+  inputs = Dir.glob(preserved_sources).map { |path| "$(PODS_TARGET_SRCROOT)/#{path}" }
+  build_path = "${PODS_BUILD_DIR}/Macros/#{plugin_module}"
+  plugin_path = "#{build_path}/${CONFIGURATION}/#{plugin_module}-tool##{plugin_module}"
+  plugin_output = "$(PODS_BUILD_DIR)/Macros/#{plugin_module}/$(CONFIGURATION)/#{plugin_module}"
 
   script = <<-SCRIPT
-    env -i PATH="$PATH" "$SHELL" -l -c "swift build -c release --package-path \\"$PODS_TARGET_SRCROOT\\" --build-path \\"${PODS_BUILD_DIR}/CodableWrapper\\""
-    SCRIPT
-  
+  echo "env -i DEVELOPER_DIR=\\"$DEVELOPER_DIR\\" PATH=\\"$PATH\\" SRCROOT=\\"$PODS_TARGET_SRCROOT\\" BUILD_DIR=\\"$PODS_BUILD_DIR\\" TOOLCHAIN=\\"$DT_TOOLCHAIN_DIR\\" CONFIGURATION=\\"$CONFIGURATION\\" \\"${PODS_TARGET_SRCROOT}/#{script_path}\\""
+  env -i DEVELOPER_DIR="$DEVELOPER_DIR" PATH="$PATH" SRCROOT="$PODS_TARGET_SRCROOT" BUILD_DIR="$PODS_BUILD_DIR" TOOLCHAIN="$DT_TOOLCHAIN_DIR" CONFIGURATION="$CONFIGURATION" "${PODS_TARGET_SRCROOT}/#{script_path}"
+  SCRIPT
+
+  s.preserve_paths = ["*.md", "LICENSE", manifest_file, "#{sources_dir}/#{plugin_module}", script_path, "Tests", "Bin"]
+
   s.script_phase = {
-      :name => 'Build CodableWrapper macro plugin',
-      :script => script,
-      :execution_position => :before_compile
+    :name => 'Build CodableWrapper macro plugin',
+    :script => script,
+    :input_files => inputs, :output_files => [plugin_output],
+    :execution_position => :before_compile
   }
+
+  xcconfig = {
+    'OTHER_SWIFT_FLAGS' => "-Xfrontend -load-plugin-executable -Xfrontend #{plugin_path}",
+  }
+  s.user_target_xcconfig = xcconfig
+  s.pod_target_xcconfig = xcconfig
 end
