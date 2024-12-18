@@ -29,16 +29,16 @@ Pod::Spec.new do |s|
   plugin_module = 'CodableWrapperMacros'
   manifest_file = 'Package*.swift'
 
-  script_path = 'Utils/macro_plugin_build.rb'
+  script_path = 'macro_plugin_build.rb'
   preserved_sources = "{#{manifest_file},#{sources_dir}/{#{plugin_module}}/**/*.swift,#{script_path}}"
   inputs = Dir.glob(preserved_sources).map { |path| "$(PODS_TARGET_SRCROOT)/#{path}" }
   build_path = "${PODS_BUILD_DIR}/Macros/#{plugin_module}"
-  plugin_path = "#{build_path}/${CONFIGURATION}/#{plugin_module}-tool##{plugin_module}"
+  plugin_path = "#{build_path}/${CONFIGURATION}/#{plugin_module}"
   plugin_output = "$(PODS_BUILD_DIR)/Macros/#{plugin_module}/$(CONFIGURATION)/#{plugin_module}"
 
   script = <<-SCRIPT
-  echo "env -i DEVELOPER_DIR=\\"$DEVELOPER_DIR\\" PATH=\\"$PATH\\" SRCROOT=\\"$PODS_TARGET_SRCROOT\\" BUILD_DIR=\\"$PODS_BUILD_DIR\\" TOOLCHAIN=\\"$DT_TOOLCHAIN_DIR\\" CONFIGURATION=\\"$CONFIGURATION\\" \\"${PODS_TARGET_SRCROOT}/#{script_path}\\""
-  env -i DEVELOPER_DIR="$DEVELOPER_DIR" PATH="$PATH" SRCROOT="$PODS_TARGET_SRCROOT" BUILD_DIR="$PODS_BUILD_DIR" TOOLCHAIN="$DT_TOOLCHAIN_DIR" CONFIGURATION="$CONFIGURATION" "${PODS_TARGET_SRCROOT}/#{script_path}"
+  echo "env -i PATH=\\"$PATH\\" SRCROOT=\\"$PODS_TARGET_SRCROOT\\" BUILD_DIR=\\"$PODS_BUILD_DIR\\" TOOLCHAIN=\\"$DT_TOOLCHAIN_DIR\\" CONFIGURATION=\\"$CONFIGURATION\\" \\"${PODS_TARGET_SRCROOT}/#{script_path}\\""
+  env -i PATH="$PATH" SRCROOT="$PODS_TARGET_SRCROOT" BUILD_DIR="$PODS_BUILD_DIR" TOOLCHAIN="$DT_TOOLCHAIN_DIR" CONFIGURATION="$CONFIGURATION" "${PODS_TARGET_SRCROOT}/#{script_path}"
   SCRIPT
 
   s.preserve_paths = ["*.md", "LICENSE", manifest_file, "#{sources_dir}/#{plugin_module}", script_path, "Tests", "Bin"]
@@ -51,7 +51,7 @@ Pod::Spec.new do |s|
   }
 
   xcconfig = {
-    'OTHER_SWIFT_FLAGS' => "-Xfrontend -load-plugin-executable -Xfrontend #{plugin_path}",
+    'OTHER_SWIFT_FLAGS' => "-Xfrontend -load-plugin-executable -Xfrontend #{plugin_path}##{plugin_module}",
   }
   s.user_target_xcconfig = xcconfig
   s.pod_target_xcconfig = xcconfig
