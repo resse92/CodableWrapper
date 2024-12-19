@@ -5,12 +5,12 @@ public extension KeyedDecodingContainer where K == AnyCodingKey {
                                   keys: [String],
                                   nestedKeys: [String]) throws -> Value {
         for key in nestedKeys {
-            if let value = try tryNestedKeyDecode(type: type, key: key) {
+            if let value = tryNestedKeyDecode(type: type, key: key) {
                 return value
             }
         }
         for key in keys {
-            if let value = try tryNormalKeyDecode(type: type, key: key) {
+            if let value = tryNormalKeyDecode(type: type, key: key) {
                 return value
             }
         }
@@ -24,12 +24,12 @@ public extension KeyedDecodingContainer where K == AnyCodingKey {
 }
 
 private extension KeyedDecodingContainer where K == AnyCodingKey {
-    func tryNormalKeyDecode<Value: Decodable>(type: Value.Type, key: String) throws -> Value? {
-        func _decode(key: String) throws -> Value? {
+    func tryNormalKeyDecode<Value: Decodable>(type: Value.Type, key: String) -> Value? {
+        func _decode(key: String) -> Value? {
             guard let key = Key(stringValue: key) else {
                 return nil
             }
-            if let value = try decodeIfPresent(type, forKey: key) {
+            if let value = try? decodeIfPresent(type, forKey: key) {
                 return value
             }
             let value = try? decodeIfPresent(AnyDecodable.self, forKey: key)?.value
@@ -48,14 +48,14 @@ private extension KeyedDecodingContainer where K == AnyCodingKey {
         }
 
         for newKey in [key, key.snakeCamelConvert()].compactMap({ $0 }) {
-            if let value = try _decode(key: newKey) {
+            if let value = _decode(key: newKey) {
                 return value
             }
         }
         return nil
     }
 
-    private func tryNestedKeyDecode<Value: Decodable>(type: Value.Type, key: String) throws -> Value? {
+    private func tryNestedKeyDecode<Value: Decodable>(type: Value.Type, key: String) -> Value? {
         var keyComps = key.components(separatedBy: ".")
         guard let rootKey = AnyCodingKey(stringValue: keyComps.removeFirst()) else {
             return nil
@@ -71,7 +71,7 @@ private extension KeyedDecodingContainer where K == AnyCodingKey {
             }
         }
         if let container = container {
-            if let value = try container.tryNormalKeyDecode(type: type, key: lastKey) {
+            if let value = container.tryNormalKeyDecode(type: type, key: lastKey) {
                 return value
             }
         }
